@@ -46,12 +46,13 @@ app.post('/login',(req,res)=>{
     res.send(message);
 });
 
-app.get('/getusers',(req,res)=>{
+app.post('/getusers',(req,res)=>{
+    console.log("here");
     var user_list=[]
     users.forEach((user)=>{
         user_list.push({"name":user.name});
     })
-    res.send(user_list);
+    res.send(JSON.stringify({users:user_list}));
 });
 
 app.listen(3000, function(){

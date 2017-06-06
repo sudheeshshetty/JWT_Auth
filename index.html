@@ -29,12 +29,24 @@
             <div id="token">
             </div>
         </div>
+        </br>
+        </br>
+        <div class="container">
+            <form>
+                <div class="form-group">
+                    <label for="token">Username</label>
+                    <textarea class="form-control" id="token" placeholder="token" rows="5"></textarea>
+                </div>
+                <button type="button" class="btn btn-primary center-block" onclick="getlist()">Get List</button>
+            </form>
+            <div id="list">
+            </div>
+        </div>
         <script type="text/javascript">
             auth= function(){
                 var xhttp = new XMLHttpRequest();
                 
                 data={name:document.getElementById("username").value,password:document.getElementById("password").value}
-                console.log(data);
                 xhttp.onreadystatechange = function() {
                     if (xhttp.readyState==4) {
                         var response = xhttp.responseText;
@@ -44,7 +56,31 @@
                 xhttp.open("POST", "http://localhost:3000/login", true);
                 xhttp.setRequestHeader("Content-type", 'application/json; charset=UTF-8');
                 xhttp.send(JSON.stringify(data));
+                
+                
+            }
+            getlist= function(){
                 console.log("here");
+                var xhttp = new XMLHttpRequest();
+                
+//                data={name:document.getElementById("username").value,password:document.getElementById("password").value}
+                xhttp.onreadystatechange = function() {
+                    if (xhttp.readyState==4) {
+                        var response = JSON.parse(xhttp.responseText);
+                        console.log(response.users.length);
+                        var ul=document.createElement("ul");
+                        for(var i=0;i<response.users.length;i++){
+                            var li=document.createElement("li");
+                            li.appendChild(document.createTextNode(response.users[i].name));
+                            ul.appendChild(li);
+                        }
+                        document.getElementById("list").appendChild(ul);
+                    }
+                };
+                xhttp.open("POST", "http://localhost:3000/getusers", true);
+                xhttp.setRequestHeader("Content-type", 'application/json; charset=UTF-8');
+//                xhttp.send(JSON.stringify(data));
+                xhttp.send();
                 
                 
             }
