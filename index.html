@@ -6,9 +6,9 @@
         </title>
         <!-- Latest compiled and minified CSS -->
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-        
+
         <script src="https://code.jquery.com/jquery-3.2.1.min.js" crossorigin="anonymous"></script>
-        
+
         <!-- Latest compiled and minified JavaScript -->
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
     </head>
@@ -26,7 +26,7 @@
                 </div>
                 <button type="button" class="btn btn-primary center-block" onclick="auth()">Submit</button>
             </form>
-            <div id="token">
+            <div id="token-display">
             </div>
         </div>
         </br>
@@ -34,8 +34,8 @@
         <div class="container">
             <form>
                 <div class="form-group">
-                    <label for="token">Username</label>
-                    <textarea class="form-control" id="token" placeholder="token" rows="5"></textarea>
+                    <label for="token">Token</label>
+                    <input  type="text" class="form-control" id="token" placeholder="token" ></input>
                 </div>
                 <button type="button" class="btn btn-primary center-block" onclick="getlist()">Get List</button>
             </form>
@@ -45,29 +45,29 @@
         <script type="text/javascript">
             auth= function(){
                 var xhttp = new XMLHttpRequest();
-                
+
                 data={name:document.getElementById("username").value,password:document.getElementById("password").value}
                 xhttp.onreadystatechange = function() {
                     if (xhttp.readyState==4) {
-                        var response = xhttp.responseText;
-                        document.getElementById("token").innerHTML = response;
+                        var response = JSON.parse(xhttp.responseText);
+                        document.getElementById("token-display").innerHTML = response.token;
                     }
                 };
                 xhttp.open("POST", "http://localhost:3000/login", true);
                 xhttp.setRequestHeader("Content-type", 'application/json; charset=UTF-8');
                 xhttp.send(JSON.stringify(data));
-                
-                
+
+
             }
             getlist= function(){
                 console.log("here");
                 var xhttp = new XMLHttpRequest();
-                
-//                data={name:document.getElementById("username").value,password:document.getElementById("password").value}
+
+               data={token:document.getElementById("token").value}
+               console.log(data);
                 xhttp.onreadystatechange = function() {
-                    if (xhttp.readyState==4) {
+                    if (xhttp.readyState==4 && xhttp.status==200) {
                         var response = JSON.parse(xhttp.responseText);
-                        console.log(response.users.length);
                         var ul=document.createElement("ul");
                         for(var i=0;i<response.users.length;i++){
                             var li=document.createElement("li");
@@ -76,13 +76,15 @@
                         }
                         document.getElementById("list").appendChild(ul);
                     }
+                    if(xhttp.readyState==4 && xhttp.status==403){
+                      document.getElementById("list").innerHTML=JSON.parse(xhttp.responseText).message;
+                    }
                 };
                 xhttp.open("POST", "http://localhost:3000/getusers", true);
                 xhttp.setRequestHeader("Content-type", 'application/json; charset=UTF-8');
-//                xhttp.send(JSON.stringify(data));
-                xhttp.send();
-                
-                
+                xhttp.send(JSON.stringify(data));
+
+
             }
         </script>
     </body>

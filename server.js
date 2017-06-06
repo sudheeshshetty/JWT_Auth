@@ -1,6 +1,7 @@
 var express = require('express');
 var app=express();
 var bodyParser= require('body-parser');
+var jwt=require('jsonwebtoken');
 
 var users=[
 {
@@ -13,42 +14,69 @@ var users=[
 }
 ]
 app.use( bodyParser.json() );
-app.use(bodyParser.urlencoded({     
+app.use(bodyParser.urlencoded({
     extended: true
 }));
 
-app.use(express.static('./')); 
+app.use(express.static('./'));
 
 app.get('/', (req,res)=>{
     res.sendFile('index.html');
 });
 
 app.post('/login',(req,res)=>{
-    console.log(req.body);
     var message;
     for(var user of users){
       if(user.name!=req.body.name){
-          console.log("1");
           message="Wrong Name";
       }else{
           if(user.password!=req.body.password){
-              console.log("2");
               message="Wrong Password";
               break;
           }
           else{
-              console.log("3");
+              var token=jwt.sign(user,"samplesecret");
+              console.log(token);
               message="Login Successful";
               break;
-          }         
+          }
       }
     }
-    res.send(message);
+    res.json({
+      message,
+      token
+    });
+});
+
+app.use((req, res, next)=>{
+        // check header or url parameters or post parameters for token
+        console.log(req.body);
+        var token = req.body.token || req.query.token || req.headers['x-access-token'];
+        if(token){
+          console.log("token");
+          jwt.verify(token,"samplesecret",(err,decod)=>{
+            if(err){
+              res.status(403).json({
+                message:"Wrong Token"
+              });
+            }
+            else{
+              console.log("success");
+              req.decoded=decod;
+              next();
+            }
+          });
+        }
+        else{
+          res.status(403).json({
+            message:"No Token"
+          });
+        }
 });
 
 app.post('/getusers',(req,res)=>{
+    var user_list=[];
     console.log("here");
-    var user_list=[]
     users.forEach((user)=>{
         user_list.push({"name":user.name});
     })
