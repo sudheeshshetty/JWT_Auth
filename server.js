@@ -42,10 +42,17 @@ app.post('/login',(req,res)=>{
           }
       }
     }
-    res.json({
-      message,
-      token
-    });
+    if(token){
+        res.status(200).json({
+            message,
+            token
+        });
+    }
+    else{
+        res.status(403).json({
+            message
+        });
+    }
 });
 
 app.use((req, res, next)=>{
